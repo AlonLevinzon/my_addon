@@ -1,0 +1,81 @@
+export default {
+  async fetch(request) {
+    const url = new URL(request.url);
+    const path = url.pathname.split("/").filter(Boolean);
+
+    const manifest = {
+      id: "com.alon.hebrewsubs",
+      version: "1.0.0",
+      name: "My Hebrew Subtitles",
+      description: "Personal Hebrew subtitles for Stremio",
+      resources: ["subtitles"],
+      types: ["movie", "series"],
+      idPrefixes: ["tt"],
+      catalogs: []
+    };
+
+    const subtitlesMap = {
+      "tt4357198": [
+        {
+          id: "tt4357198-he-1",
+          lang: "he",
+          url: "https://alonlevinzon.github.io/my_addon/files/tt4357198.he.srt"
+        }
+      ],
+       "tt26443616": [
+        {
+          id: "tt26443616-he-1",
+          lang: "he",
+          url: "https://alonlevinzon.github.io/my_addon/files/tt26443616.he.srt"
+        }
+      ]
+    };
+
+
+    const jsonHeaders = {
+      "content-type": "application/json; charset=utf-8",
+      "access-control-allow-origin": "*"
+    };
+
+    const textHeaders = {
+      "content-type": "text/html; charset=utf-8",
+      "access-control-allow-origin": "*"
+    };
+
+    if (url.pathname === "/" || url.pathname === "") {
+      return new Response(
+        `<html><body>
+          <h1>My Hebrew Subtitles</h1>
+          <p><a href="/manifest.json">manifest.json</a></p>
+        </body></html>`,
+        { headers: textHeaders }
+      );
+    }
+
+    if (url.pathname === "/manifest.json") {
+      return new Response(JSON.stringify(manifest), { headers: jsonHeaders });
+    }
+
+    if (path[0] === "subtitles" && path.length >= 3) {
+      const rawId = path[2].replace(/\.json$/, "");
+
+      let extra = {};
+      if (path[3]) {
+        const extraStr = path[3].replace(/\.json$/, "");
+        extra = Object.fromEntries(new URLSearchParams(extraStr));
+      }
+
+      const videoId = extra.videoID || extra.videoId || rawId;
+      const subtitles = subtitlesMap[videoId] || [];
+
+      return new Response(JSON.stringify({ subtitles }), {
+        headers: jsonHeaders
+      });
+    }
+
+    return new Response("Not found", {
+      status: 404,
+      headers: { "access-control-allow-origin": "*" }
+    });
+  }
+};
