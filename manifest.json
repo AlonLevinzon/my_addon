@@ -1,0 +1,10 @@
+{
+  "id": "com.yourname.hebrewsubtitles",
+  "version": "1.0.0",
+  "name": "My Hebrew Subtitles",
+  "description": "Addon static for personal Hebrew subtitles on Stremio",
+  "types": ["movie"],
+  "resources": ["subtitles"],
+  "idPrefixes": ["tt"],
+  "catalogs": []
+}
